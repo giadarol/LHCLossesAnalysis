@@ -13,6 +13,10 @@ filln = 6639
 filln = 6646
 # filln = 6060
 filln = 6645
+filln=6640
+filln=6641
+filln=6650
+filln=6662
 
 import pytimber
 ldb = pytimber.LoggingDB(source='ldb')
@@ -75,7 +79,7 @@ for beam in [1,2]:
     t_mat = np.dot(np.ones((len(slots), 1)), np.atleast_2d(t_stamps)).T
     lifet_h = -1/(np.diff(bint, axis=0)/np.diff(t_mat, axis=0)/bint[:-1,:])/3600.
     lifet_h[bint[:-1,:]<0.8e11] = 0.
-    lifet_h[lifet_h<0]= 100
+    lifet_h[lifet_h<0]= 200
 
     t_ref = t_stamps[0]
     t_fbct_minutes = (t_stamps-t_ref)/60.
@@ -103,7 +107,7 @@ for beam in [1,2]:
     spbet = plt.subplot2grid(shape=(1, 4), loc=(0, 0),colspan=1, sharey=axt, sharex=axbet)
     spbet_list.append(spbet)
 
-    cc = splifet.pcolormesh(slots, t_fbct_minutes[1:], lifet_h, vmin=0, vmax = 60, cmap=cm.jet_r)
+    cc = splifet.pcolormesh(slots, t_fbct_minutes[1:], lifet_h, vmin=0, vmax = 120, cmap=cm.jet_r)
     splifet.set_xlim(0, 3500)
     splifet.set_xlabel('25ns slot')
     figl.colorbar(cc, ax=splifet, label='Lifetime [h]')
