@@ -27,9 +27,13 @@ filln = 6650
 filln = 6659
 filln = 6662
 # filln = 6663
+filln = 6666
 
+t_h_detail = 5
 
-t_h_detail = 1
+if len(sys.argv)>1:
+   filln = int(sys.argv[1])
+   # print 'Working on fill {}'.format(filln)
 
 folder = '/afs/cern.ch/user/l/lumimod/lumimod/2018/procdata/fill_%d'%filln
 
@@ -45,9 +49,11 @@ N_traces = len(fill_data['time_range'])
 
 n_dec = 10 
 
-beam =1
+beam = 1
 
 sigma_m2 = 80e-3*1e-28
+
+half_xang_obs_urad = 140
 
 def with_empty_slots(lifet_woBO_h, slots):
     
@@ -98,7 +104,7 @@ figlist = []
 
 axslot = None
 axd = None
-
+axd2 = None
 for beam in [1,2]:
 
     slots = fill_data['slots_filled_coll'][beam]
@@ -135,7 +141,7 @@ for beam in [1,2]:
     
     axlt.set_xlabel('25ns slot')
     axslot = axlt
-
+    axslot. set_xlim(0, 3500)
 
     ax1 = plt.subplot2grid(shape=(5, 5), loc=(0, 0), colspan=1, rowspan=4, sharey=axlt)
     ax1.step(fill_data['xing_angle'][1]*1e6/2, tc(t_stamps), lw=2.)
@@ -182,25 +188,50 @@ for beam in [1,2]:
 
     figlist.append(fig)
 
-    figd = plt.figure(100+beam, figsize=(8*1.4,6))
-    figd.set_facecolor('w')
-    axd = figd.add_subplot(111, sharex=axslot, sharey=axd)
-    i_plot = np.argmin(np.abs(t_h_detail-tc(t_stamps)))
-    BO_lr_det = with_empty_slots(BO_loss_rate, slots)[i_plot, :]
-    lr_det = with_empty_slots(loss_rate, slots)[i_plot, :]
-    plt.fill_between(np.arange(3564),BO_lr_det, color='green', alpha=0.6, label='Burn off')
-    plt.fill_between(np.arange(3564), BO_lr_det, lr_det, color='red', alpha=.6, label='Additional losses')
-    ms.sciy()
-    axd.set_ylabel('Loss rate [p/s]')
-    axd.set_xlabel('25 ns slot')
-    axd.legend(loc='lower right', prop={'size':14})
-    axd.set_xlim(0,3500)
-    axd.set_ylim(bottom=0)
-    axd.grid('on')
-    figd.subplots_adjust(right=.94, left=.1, bottom=.12, top=.86)
-    figd.suptitle('Fill %d SB Loss Rates at %.1fh for B%d\nSB started on %s\n'%(filln, t_h_detail, beam, tref_string))
-    
-    figlist.append(figd)
+    i_detail = np.argmin(np.abs(half_xang_obs_urad - fill_data['xing_angle'][1]/2*1e6))
+    t_h_detail = tc(t_stamps)[i_detail]
+
+    if t_h_detail<tc(t_stamps)[-1]:
+        figd = plt.figure(100+beam, figsize=(8*1.4,6))
+        figd.set_facecolor('w')
+        axd = figd.add_subplot(111, sharex=axslot, sharey=axd)
+        i_plot = np.argmin(np.abs(t_h_detail-tc(t_stamps)))
+        BO_lr_det = with_empty_slots(BO_loss_rate, slots)[i_plot, :]
+        lr_det = with_empty_slots(loss_rate, slots)[i_plot, :]
+
+        lt_BO_avg = 1./(np.sum(BO_lr_det)/np.sum(bint[i_plot]))/3600.
+        lt_other = 1./(np.sum(lr_det-BO_lr_det)/np.sum(bint[i_plot]))/3600.
+
+        plt.fill_between(np.arange(3564),BO_lr_det, color='green', alpha=0.6, label='Burn off')
+        plt.fill_between(np.arange(3564), BO_lr_det, lr_det, color='red', alpha=.6, label='Additional losses')
+        ms.sciy()
+        axd.set_ylabel('Loss rate [p/s]')
+        axd.set_xlabel('25 ns slot')
+        axd.legend(loc='lower right', prop={'size':14})
+        axd.set_xlim(0,3500)
+        axd.set_ylim(bottom=0)
+        axd.grid('on')
+        figd.subplots_adjust(right=.94, left=.1, bottom=.12, top=.86)
+        figd.suptitle('Fill %d SB Loss Rate at %.1fh for B%d\nSB started on %s\n'%(filln, t_h_detail, beam, tref_string))
+        
+        figlist.append(figd)
+
+        figd2 = plt.figure(200+beam, figsize=(8*1.4,6))
+        figd2.set_facecolor('w')
+        axd2 = figd2.add_subplot(111, sharex=axslot, sharey=axd2)
+
+        axd2.plot(np.arange(3564), BO_lr_det, 'b', lw=2, label='Burn-off (tau=%.1fh)'%lt_BO_avg)
+        axd2.plot(np.arange(3564), lr_det-BO_lr_det, 'r', lw=2, label='Other losses (tau=%.1fh)'%lt_other)
+        ms.sciy()
+        axd2.set_ylabel('Loss rate [p/s]')
+        axd2.set_xlabel('25 ns slot')
+        axd2.legend(loc='upper right', prop={'size':14})
+        axd2.set_xlim(0,3500)
+        axd2.set_ylim(bottom=0, top=1.4e6)
+        axd2.grid('on')
+        figd2.subplots_adjust(right=.94, left=.1, bottom=.12, top=.86)
+        figd2.suptitle('Fill %d Loss Rates at %.1fh for B%d Xang %.0furad\nSB started on %s\n'%(filln, t_h_detail, beam, fill_data['xing_angle'][1][i_plot]/2*1e6, tref_string))
+        figlist.append(figd2)
 
     # plt.figure(40)
     # plt.pcolormesh(BO_loss_rate/loss_rate, cmap=cm.jet_r)
@@ -210,6 +241,10 @@ for beam in [1,2]:
     # plt.pcolormesh(tot_lumi, cmap=cm.jet)
     # plt.colorbar()
 
+ff = '/eos/user/g/giadarol/temp/20180513_lossesbbb'
+[fg.savefig(ff+'/'+fg._suptitle.get_text().split('\n')[0].replace(' ','_')+'.png', dpi=200) for fg in figlist]
+axslot.set_xlim(770, 1270);
+[fg.savefig(ff+'/'+fg._suptitle.get_text().split('\n')[0].replace(' ','_')+'_zoom.png', dpi=200) for fg in figlist]
 
 
 plt.show()

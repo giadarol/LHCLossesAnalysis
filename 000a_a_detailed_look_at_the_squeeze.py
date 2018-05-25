@@ -22,14 +22,15 @@ filln = 6654
 #filln = 6674
 filln=6677
 filln=6681
+filln=6714
+
+beta_obs_cm = 31.
+
+
+
 import pytimber
 ldb = pytimber.LoggingDB(source='ldb')
 mdb = pytimber.LoggingDB(source='mdb')
-# fills_pkl_name = '../LHC_2018_followup/fills_and_bmodes.pkl'
-# with open(fills_pkl_name, 'rb') as fid:
-#     dict_fill_bmodes = pickle.load(fid)
-# t_start = dict_fill_bmodes[filln]['t_start_FLATTOP']
-# t_stop = dict_fill_bmodes[filln]['t_stop_SQUEEZE']
 
 fillinfo = mdb.getLHCFillData(filln)
 bmodes = fillinfo['beamModes']
@@ -37,7 +38,7 @@ for bm in bmodes:
     if bm['mode'] == 'FLATTOP':
         t_start = bm['startTime']
     if bm['mode'] == 'ADJUST':
-        t_stop = bm['endTime']+10*60.
+        t_stop = bm['endTime']-1*60.
         break
         
 
@@ -54,6 +55,10 @@ data.update(ldb.get([
             'ATLAS:LUMI_TOT_INST',
 				], t_start, t_stop))
 print 'Downloaded Beta'
+
+data.update(ldb.getScaled(['RPMBB.RR17.ROD.A12B1:I_MEAS', 'RPMBB.RR17.ROD.A12B2:I_MEAS'],
+                    t_start, t_stop, scaleAlgorithm='AVG', scaleInterval='MINUTE',scaleSize='1'))
+print 'Downloaded Octupole current'
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -112,7 +117,7 @@ for beam in [1,2]:
     spbet = plt.subplot2grid(shape=(1, 4), loc=(0, 0),colspan=1, sharey=axt, sharex=axbet)
     spbet_list.append(spbet)
 
-    cc = splifet.pcolormesh(slots, t_fbct_minutes[1:], lifet_h, vmin=0, vmax = 120, cmap=cm.jet_r)
+    cc = splifet.pcolormesh(slots, t_fbct_minutes[1:], lifet_h, vmin=0, vmax=120, cmap=cm.jet_r)
     splifet.set_xlim(0, 3500)
     splifet.set_xlabel('25ns slot')
     figl.colorbar(cc, ax=splifet, label='Lifetime [h]')
@@ -128,7 +133,10 @@ for beam in [1,2]:
         spbet.tick_params(axis='x', colors='b')
 
         splumi = spbet.twiny()
-        var = 'ATLAS:LUMI_TOT_INST'; splumi.plot(data[var][1]/1e4, (data[var][0]-t_ref)/60., color='r', lw=2)
+        var = 'ATLAS:LUMI_TOT_INST'; splumi.plot(data[var][1]/1e4*100, (data[var][0]-t_ref)/60., color='r', lw=2)
+        
+        var = 'RPMBB.RR17.ROD.A12B%d:I_MEAS'%beam; splumi.plot(-data[var][1], (data[var][0]-t_ref)/60., color='k', lw=2)
+        
         splumi.xaxis.set_major_locator(MaxNLocator(5))
         spbet.grid('on')
         splumi.set_xlabel('Lumi')
@@ -143,15 +151,15 @@ for beam in [1,2]:
         figl.subplots_adjust(left=.05, right=1.)
 
         figlist += [fig, figl]
+        
+    sortbeta = np.argsort(data['HX:BETASTAR_IP1'][1])
+    t_obs = np.interp(beta_obs_cm, 
+                        np.take(data['HX:BETASTAR_IP1'][1], sortbeta),
+                        np.take(data['HX:BETASTAR_IP1'][0], sortbeta))
+                        
+    
 
-# plt.figure(3)
-# spl = plt.subplot(2,1,1)
-# plt.plot(bint[-1,:])
-# plt.subplot(2,1,2, sharex=spl)
-# plt.plot(lifet_h[-1,:])
 
-# To save
-# for fg in figlist: fg.savefig(ff+'/'+fg._suptitle.get_text().replace(' ','_')+'_zoom.png', dpi=200)
 
 
 plt.show()

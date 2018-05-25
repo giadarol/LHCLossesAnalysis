@@ -18,10 +18,9 @@ filln=6641
 filln=6650
 filln=6662
 filln = 6666
-filln = 6654
-#filln = 6674
-filln=6677
-filln=6681
+filln = 6674 
+filln = 6672
+
 import pytimber
 ldb = pytimber.LoggingDB(source='ldb')
 mdb = pytimber.LoggingDB(source='mdb')
@@ -34,9 +33,9 @@ mdb = pytimber.LoggingDB(source='mdb')
 fillinfo = mdb.getLHCFillData(filln)
 bmodes = fillinfo['beamModes']
 for bm in bmodes:
-    if bm['mode'] == 'FLATTOP':
-        t_start = bm['startTime']
-    if bm['mode'] == 'ADJUST':
+    if bm['mode'] == 'INJPHYS':
+        t_start = bm['endTime']
+    if bm['mode'] == 'RAMP':
         t_stop = bm['endTime']+10*60.
         break
         
@@ -45,13 +44,14 @@ data = {}
 
 data.update(ldb.get([
 			'LHC.BCTFR.A6R4.B1:BUNCH_INTENSITY',
-				'LHC.BCTFR.A6R4.B2:BUNCH_INTENSITY'], t_start, t_stop))
+			'LHC.BCTFR.A6R4.B2:BUNCH_INTENSITY'], t_start, t_stop))
 print 'Downloaded Intensity'
 
 data.update(ldb.get([
 			'HX:BETASTAR_IP1',
             'CMS:LUMI_TOT_INST',
             'ATLAS:LUMI_TOT_INST',
+            'LHC.BSRA.US45.B1:ABORT_GAP_ENERGY',
 				], t_start, t_stop))
 print 'Downloaded Beta'
 
@@ -120,7 +120,7 @@ for beam in [1,2]:
     
     for spbet in spbet_list:
         spbet.plot(data['HX:BETASTAR_IP1'][1], t_betast_minutes, lw=2)
-        spbet.set_xlim(25., 110.)
+        #spbet.set_xlim(25., 110.)
         spbet.set_xlabel('Beta* [cm]')
         spbet.set_ylabel('Time [min]')
         spbet.xaxis.set_major_locator(MaxNLocator(5))
@@ -128,10 +128,10 @@ for beam in [1,2]:
         spbet.tick_params(axis='x', colors='b')
 
         splumi = spbet.twiny()
-        var = 'ATLAS:LUMI_TOT_INST'; splumi.plot(data[var][1]/1e4, (data[var][0]-t_ref)/60., color='r', lw=2)
+        var = 'LHC.BSRA.US45.B1:ABORT_GAP_ENERGY'; splumi.plot(data[var][1], (data[var][0]-t_ref)/60., color='r', lw=2)
         splumi.xaxis.set_major_locator(MaxNLocator(5))
         spbet.grid('on')
-        splumi.set_xlabel('Lumi')
+        splumi.set_xlabel('Energy [GeV]')
         splumi.set_ylim(bottom=(t_start-t_ref)/60.,top=(t_stop-t_ref)/60.)
         splumi.xaxis.label.set_color('r')
         splumi.tick_params(axis='x', colors='red')
