@@ -18,8 +18,8 @@ import pytimber
 import numpy as np
 
 
-t_start_string = '2018_07_22 21:30:00'
-t_stop_string = '2018_07_22 22:30:00'
+t_start_string = '2018_07_24 00:01:00'
+t_stop_string = '2018_07_24 02:00:00'
 
 t_h_detail = 0.5
 
@@ -123,7 +123,7 @@ for beam in [1,2]:
     lifet_woBO_h_allslots = with_empty_slots(lifet_woBO_h, slots)
 
     cc=axlt.pcolormesh(np.arange(3564), tc(t_stamps), lifet_woBO_h_allslots, 
-        cmap=cm.jet_r, vmin=0, vmax=120)
+        cmap=cm.jet_r, vmin=0, vmax=200)
     axcb = plt.subplot2grid(shape=(5, 5), loc=(4, 1), colspan=3, rowspan=1)
     plt.colorbar(cc, cax=axcb, label='Lifetime [h]', orientation='horizontal')
     
