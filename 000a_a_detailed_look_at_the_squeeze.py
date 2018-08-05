@@ -25,6 +25,8 @@ filln = 6639
 #~ filln=6681
 #~ filln=6714
 
+ff = './results_squeeze/'
+
 if len(sys.argv)>1:
    filln = int(sys.argv[1])
 
@@ -195,7 +197,7 @@ for beam in [1,2]:
     with open('avglifet/avg_lifet_fill%d_beam%d_betast%.1fcm.txt'%(filln, beam, beta_obs_cm), 'w') as fid:
         fid.write('%.3f %.3f'%(oct_obs, avg_lifet))
 
-    fnamemat = 'temp/lossrate_fill%d_beam%d_betast%.1fcm'%(filln, beam, beta_obs_cm)
+    fnamemat = ff+'/lossrate_fill%d_beam%d_betast%.1fcm'%(filln, beam, beta_obs_cm)
     sio.savemat(fnamemat, {'lossrate':lr_obs}, oned_as='row')
 
     
@@ -207,7 +209,7 @@ ax_lifet_obs.set_ylabel('Loss rate [%/h]')
 figlist.append(fig_obs)
 
 
-ff = './temp/'
+
 [fg.savefig(ff+'/'+fg._suptitle.get_text().split('\n')[0].replace(' ','_')+'.png', dpi=200) for fg in figlist]
 ax_lifet_obs.set_xlim(770, 1270);
 [fg.savefig(ff+'/'+fg._suptitle.get_text().split('\n')[0].replace(' ','_')+'_zoom.png', dpi=200) for fg in figlist]

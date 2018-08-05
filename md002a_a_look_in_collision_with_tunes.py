@@ -18,10 +18,14 @@ import pytimber
 import numpy as np
 
 
-t_start_string = '2018_07_23 23:01:00'
+t_start_string = '2018_07_23 23:30:00'
 t_stop_string = '2018_07_24 02:30:00'
+t_h_detail = 2.75
+# t_h_detail = 2.15
 
-t_h_detail = 0.5
+t_start_string = '2018_07_24 04:20:00'
+t_stop_string = '2018_07_24 06:00:00'
+t_h_detail = 1.5
 
 physics_BP_end = "PHYSICS-6.5TeV-30cm-120s-2018_V1_MD2@120_[END]"
 physics_BP = "PHYSICS-6.5TeV-30cm-120s-2018_V1_MD2"
@@ -57,7 +61,7 @@ QP_offsets = {
 'LHCBEAM2/QPV': 15.-18.32254,
 }
 
-chromaTrims_end = lsa.getTrims(parameter=['LHCBEAM1/QPH','LHCBEAM1/QPV','LHCBEAM2/QPH','LHCBEAM2/QPV'], 
+chromaTrims_end = lsa.getTrims(parameter=['LHCBEAM1/QH_TRIM','LHCBEAM1/QV_TRIM','LHCBEAM2/QH_TRIM','LHCBEAM2/QV_TRIM'], 
                              beamprocess=physics_BP_end,  
                              start=t_start_SB-30*60, end=t_stop_SB)
 
@@ -152,13 +156,14 @@ for beam in [1,2]:
     axqp = plt.subplot2grid(shape=(5, 5), loc=(0, 4), colspan=1, rowspan=4, sharey=axlt)
     for plane, styl in zip(['H', 'V'], ['--', '-']):
         if len(chromaTrims_end)>0:
-            parname = 'LHCBEAM%d/QP'%beam + plane
+            parname = 'LHCBEAM%d/Q'%beam + plane+'_TRIM'
             thistrim = chromaTrims_end[parname]
             thistrim.data.append(thistrim.data[-1])
             thistrim.time.append(t_stop_SB)
-            axqp.step(np.array(thistrim.data)+QP_offsets[parname], tc(thistrim.time), ls=styl, lw=2, color = 'k')
-    axqp.set_xlim(0, 16)
-    axqp.set_xlabel('Chromaticity')
+            axqp.step(np.array(thistrim.data), tc(thistrim.time), ls=styl, lw=2, color = 'k')
+    #axqp.set_xlim(0, 16)
+    axqp.set_xlabel('Tune trims')
+    ms.scix()
     axqp.grid('on')
 
     axoct = axqp.twiny()

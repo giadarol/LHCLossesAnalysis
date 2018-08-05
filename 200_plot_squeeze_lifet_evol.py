@@ -5,7 +5,7 @@ sys.path.append(BIN)
 import LHCMeasurementTools.mystyle as ms
 import numpy as np
 
-beam = 1#2
+beam = 2
 
 beta_obs_cm = 33.
 
@@ -78,6 +78,20 @@ filln_list_str = '''6639
 6924
 6925
 6931
+7006
+7008
+6940
+6942
+6944
+6946
+6953
+6956
+6957
+6960
+6961
+7006
+7008
+7020
 '''
 
 
