@@ -17,7 +17,7 @@ import pytimber
 
 import numpy as np
 
-t_h_detail = 1
+t_h_detail = 2
 
 filln = 6641
 filln = 6640
@@ -232,6 +232,10 @@ for beam in [1,2]:
         figd2.subplots_adjust(right=.94, left=.1, bottom=.12, top=.86)
         figd2.suptitle('Fill %d Loss Rates at %.1fh for B%d Xang %.0furad\nSB started on %s\n'%(filln, t_h_detail, beam, fill_data['xing_angle'][1][i_plot]/2*1e6, tref_string))
         figlist.append(figd2)
+        
+        
+        with open('avglifet_SB/avg_lifet_fill%d_beam%d_%.1furad.txt'%(filln, beam, fill_data['xing_angle'][1][i_plot]/2*1e6), 'w') as fid:
+            fid.write('%.3f %.3f'%(lt_other, lt_BO_avg))
 
     # plt.figure(40)
     # plt.pcolormesh(BO_loss_rate/loss_rate, cmap=cm.jet_r)
@@ -241,13 +245,13 @@ for beam in [1,2]:
     # plt.pcolormesh(tot_lumi, cmap=cm.jet)
     # plt.colorbar()
 
-ff = '/eos/user/g/giadarol/temp/20180513_lossesbbb'
+ff = './results_stablebeams/'
 [fg.savefig(ff+'/'+fg._suptitle.get_text().split('\n')[0].replace(' ','_')+'.png', dpi=200) for fg in figlist]
 axslot.set_xlim(770, 1270);
 [fg.savefig(ff+'/'+fg._suptitle.get_text().split('\n')[0].replace(' ','_')+'_zoom.png', dpi=200) for fg in figlist]
 
 
-plt.show()
+#~ plt.show()
 
 # To save
 # for fg in figlist: fg.savefig(ff+'/'+fg._suptitle.get_text().split('\n')[0].replace(' ','_')+'.png', dpi=200)

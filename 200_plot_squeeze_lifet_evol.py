@@ -5,11 +5,11 @@ sys.path.append(BIN)
 import LHCMeasurementTools.mystyle as ms
 import numpy as np
 
-beam = 2
+beam = 1
 
 beta_obs_cm = 33.
 
-flag_avgs = True
+flag_avgs = False
 first_fill_after_TS = 6860
 
 filln_list_str = '''6639
@@ -78,8 +78,6 @@ filln_list_str = '''6639
 6924
 6925
 6931
-7006
-7008
 6940
 6942
 6944
@@ -91,7 +89,13 @@ filln_list_str = '''6639
 6961
 7006
 7008
+7013
+7017
 7020
+7024
+7031
+7033
+7035
 '''
 
 
