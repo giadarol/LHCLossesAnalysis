@@ -18,6 +18,7 @@ import pytimber
 import numpy as np
 
 t_h_detail = 2
+enable_QP = False
 
 filln = 6641
 filln = 6640
@@ -28,6 +29,8 @@ filln = 6659
 filln = 6662
 # filln = 6663
 filln = 6666
+filln = 7266
+
 
 t_h_detail = 5
 
@@ -86,10 +89,12 @@ QP_offsets = {
 'LHCBEAM2/QPH': 15.-8.51945,
 'LHCBEAM2/QPV': 15.-18.32254,
 }
-
-chromaTrims_end = lsa.getTrims(parameter=['LHCBEAM1/QPH','LHCBEAM1/QPV','LHCBEAM2/QPH','LHCBEAM2/QPV'], 
-                             beamprocess=physics_BP_end,  
-                             start=t_start_SB-30*60, end=t_stop_SB)
+if enable_QP:
+    chromaTrims_end = lsa.getTrims(
+            parameter=['LHCBEAM1/QPH','LHCBEAM1/QPV',
+                'LHCBEAM2/QPH','LHCBEAM2/QPV'], 
+                         beamprocess=physics_BP_end,  
+                         start=t_start_SB-30*60, end=t_stop_SB)
 
 ldb = pytimber.LoggingDB(source='ldb')
 data_timb = ldb.getScaled(['RPMBB.RR17.ROD.A12B1:I_MEAS', 'RPMBB.RR17.ROD.A12B2:I_MEAS'],
@@ -106,6 +111,9 @@ axslot = None
 axd = None
 axd2 = None
 for beam in [1,2]:
+    
+    tref_string=time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime(t_stamps[0]))
+
 
     slots = fill_data['slots_filled_coll'][beam]
     bint = fill_data['b_inten_interp_coll'][beam]
@@ -120,6 +128,25 @@ for beam in [1,2]:
     BO_loss_rate = tot_lumi*sigma_m2
 
     loss_rate_woBO = loss_rate-BO_loss_rate
+    
+    total_loss_rate_beam = np.sum(loss_rate, axis=1)
+    total_loss_rate_BO = np.sum(BO_loss_rate, axis=1)
+    
+    figtot = plt.figure(1000+beam, figsize=(8*1.3, 6))
+    figtot.set_facecolor('w')
+    axtotl = plt.subplot(111)
+    axtotl.fill_between(x=tc(t_stamps[:-1]), y1=total_loss_rate_BO, color='g', alpha=0.5, label='Burn-off')
+    axtotl.fill_between(x=tc(t_stamps[:-1]), y1=total_loss_rate_beam, y2=total_loss_rate_BO, color='r', alpha=0.5, label='Other losses')
+    axtotl.plot(tc(t_stamps[:-1]), total_loss_rate_beam, lw=2, color='k', label='Total loss-rate')
+    axtotl.set_xlabel('Time [h]')
+    axtotl.set_ylabel('Loss rate [p/s]')
+    axtotl.legend(loc='upper right')
+    axtotl.grid('on')
+    figtot.suptitle('Fill %d SB loss rate decomposition B%d\nSB started on %s\n'%(filln, beam, tref_string))
+    
+    figlist.append(figtot)
+
+
 
     lifet_woBO_h = 1/(loss_rate_woBO/bint[:-1,:])/3600.
     lifet_woBO_h[lifet_woBO_h<0]= 200
@@ -141,7 +168,7 @@ for beam in [1,2]:
     
     axlt.set_xlabel('25ns slot')
     axslot = axlt
-    axslot. set_xlim(0, 3500)
+    axslot.set_xlim(0, 3500)
 
     ax1 = plt.subplot2grid(shape=(5, 5), loc=(0, 0), colspan=1, rowspan=4, sharey=axlt)
     ax1.step(fill_data['xing_angle'][1]*1e6/2, tc(t_stamps), lw=2.)
@@ -161,12 +188,13 @@ for beam in [1,2]:
     axlumi.xaxis.set_major_locator(MaxNLocator(5))
 
     axqp = plt.subplot2grid(shape=(5, 5), loc=(0, 4), colspan=1, rowspan=4, sharey=axlt)
-    for plane, styl in zip(['H', 'V'], ['--', '-']):
-        parname = 'LHCBEAM%d/QP'%beam + plane
-        thistrim = chromaTrims_end[parname]
-        thistrim.data.append(thistrim.data[-1])
-        thistrim.time.append(t_stop_SB)
-        axqp.step(np.array(thistrim.data)+QP_offsets[parname], tc(thistrim.time), ls=styl, lw=2, color = 'k')
+    if enable_QP:
+        for plane, styl in zip(['H', 'V'], ['--', '-']):
+            parname = 'LHCBEAM%d/QP'%beam + plane
+            thistrim = chromaTrims_end[parname]
+            thistrim.data.append(thistrim.data[-1])
+            thistrim.time.append(t_stop_SB)
+            axqp.step(np.array(thistrim.data)+QP_offsets[parname], tc(thistrim.time), ls=styl, lw=2, color = 'k')
     axqp.set_xlim(0, 16)
     axqp.set_xlabel('Chromaticity')
     axqp.grid('on')
@@ -183,7 +211,6 @@ for beam in [1,2]:
 
     fig.subplots_adjust(right=.95, left=.05, bottom=.12, top=.81, hspace = 1)
 
-    tref_string=time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime(t_stamps[0]))
     fig.suptitle('Fill %d SB BurnOff corrected lifetime B%d\nSB started on %s\n'%(filln, beam, tref_string))
 
     figlist.append(fig)
