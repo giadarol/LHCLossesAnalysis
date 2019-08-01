@@ -16,6 +16,7 @@ import pjlsa
 import pytimber
 
 import numpy as np
+from scipy.integrate import cumtrapz
 
 t_h_detail = 2
 enable_QP = False
@@ -132,6 +133,15 @@ for beam in [1,2]:
     total_loss_rate_beam = np.sum(loss_rate, axis=1)
     total_loss_rate_BO = np.sum(BO_loss_rate, axis=1)
     
+    figacc = plt.figure(1100+beam, figsize=(8*1.8,6*1.3))
+    figacc.set_facecolor('w')
+    axacc = plt.subplot2grid(shape=(5, 5), loc=(0, 1), colspan=3, rowspan=4)
+    cc=axacc.pcolormesh(np.arange(3564), tc(t_stamps[:-1]), 
+            with_empty_slots(cumtrapz(loss_rate_woBO, t_stamps[:-1], axis=0), slots),
+            cmap=cm.jet, vmin=0, vmax=3e10)
+    axacccb = plt.subplot2grid(shape=(5, 5), loc=(4, 1), colspan=3, rowspan=1)
+    plt.colorbar(cc, cax=axacccb, label='Accumulated losses [p]', orientation='horizontal')
+ 
     figtot = plt.figure(1000+beam, figsize=(8*1.3, 6))
     figtot.set_facecolor('w')
     axtotl = plt.subplot(111)
