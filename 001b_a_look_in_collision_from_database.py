@@ -26,8 +26,8 @@ group_definitions = [
 # MD large telescope
 filln = 7174
 T_observ_h = 5
-t_detail_h = .5
 beam = 1
+t_detail_h = .5
 
 # # Physics fill
 # filln = 7145
@@ -47,13 +47,21 @@ T_observ_h = 10
 t_detail_h = 3
 beam = 1
 
-# # Only beam 1
-# filln = 6966
-# T_observ_h = 5
-# t_detail_h = 1.7
-# beam = 1
+# Only beam 1
+filln = 6966
+T_observ_h = 5
+t_detail_h = 1.7 # 30 cm, 130 urad, nominal tunes
+t_detail_h = 2.7 # 25 cm, 130 urad, modified tunes
+t_detail_h = 2.55 # 25 cm, 130 urad, nominal tunes
+beam = 1
 
-
+# Only beam 2 
+filln = 6967
+T_observ_h = 5
+t_detail_h = 1.2 # 30 cm, 130 urad, nominal tunes
+t_detail_h = 1.3 # 25 cm ??
+slotrange = np.array([0, 520])+1270
+beam = 2
 
 dt_minutes = 5 
 
@@ -102,7 +110,7 @@ for var in varnames:
     dpoint_start = ldb.get(var, t_start)
     dpoint_stop = ldb.get(var, t_stop)
     data[var] = list(data[var])
-    data[var][0] = np.concatenate(([t_start], data[var][1], [t_stop]))
+    data[var][0] = np.concatenate(([t_start], data[var][0], [t_stop]))
     data[var][1] = np.concatenate((dpoint_start[var][1], data[var][1], dpoint_stop[var][1]))
 
 bint_raw = data['LHC.BCTFR.A6R4.B%d:BUNCH_INTENSITY'%beam][1]
@@ -244,9 +252,10 @@ t_h_detail = tc(t_stamps)[i_detail]
 axd = None
 axd2 = None
 if t_h_detail<tc(t_stamps)[-1]:
-    figd = plt.figure(100+beam, figsize=(8*1.4,6))
-    figd.set_facecolor('w')
-    axd = figd.add_subplot(111, sharex=axslot, sharey=axd)
+#    figd = plt.figure(100+beam, figsize=(8*1.4,6))
+#    figd.set_facecolor('w')
+#    axd = figd.add_subplot(111, sharex=axslot, sharey=axd)
+
     i_plot = np.argmin(np.abs(t_h_detail-tc(t_stamps)))
     BO_lr_det = BO_loss_rate[i_plot, :]
     lr_det = loss_rate[i_plot, :]
@@ -259,35 +268,37 @@ if t_h_detail<tc(t_stamps)[-1]:
     lt_BO_avg = 1./(np.sum(BO_lr_det)/np.sum(bint[i_plot]))/3600.
     lt_other = 1./(np.sum(lr_det-BO_lr_det)/np.sum(bint[i_plot]))/3600.
 
-    plt.fill_between(np.arange(3564),BO_lr_det, color='green', alpha=0.6, label='Burn off')
-    plt.fill_between(np.arange(3564), BO_lr_det, lr_det, color='red', alpha=.6, label='Additional losses')
-    ms.sciy()
-    axd.set_ylabel('Loss rate [p/s]')
-    axd.set_xlabel('25 ns slot')
-    axd.legend(loc='lower right', prop={'size':14})
-    axd.set_xlim(0,3500)
-    axd.set_ylim(bottom=0)
-    axd.grid('on')
-    figd.subplots_adjust(right=.94, left=.1, bottom=.12, top=.86)
-    figd.suptitle('Fill %d SB Loss Rate at %.1fh for B%d\nSB started on %s\n'%(filln, t_h_detail, beam, tref_string))
+    # plt.fill_between(np.arange(3564),BO_lr_det, color='green', alpha=0.6, label='Burn off')
+    # plt.fill_between(np.arange(3564), BO_lr_det, lr_det, color='red', alpha=.6, label='Additional losses')
+    # ms.sciy()
+    # axd.set_ylabel('Loss rate [p/s]')
+    # axd.set_xlabel('25 ns slot')
+    # axd.legend(loc='lower right', prop={'size':14})
+    # axd.set_xlim(0,3500)
+    # axd.set_ylim(bottom=0)
+    # axd.grid('on')
+    # figd.subplots_adjust(right=.94, left=.1, bottom=.12, top=.86)
+    # figd.suptitle('Fill %d SB Loss Rate at %.1fh for B%d\nSB started on %s\n'%(filln, t_h_detail, beam, tref_string))
     
 
     figd2 = plt.figure(200+beam, figsize=(8*1.4,6))
     figd2.set_facecolor('w')
     axd2 = figd2.add_subplot(111, sharex=axslot, sharey=axd2)
 
-    axd2.plot(np.arange(3564), BO_lr_det/bint_det*3600*100, 'b', lw=2, alpha=.4, label='Burn-off (tau=%.1fh)'%lt_BO_avg)
-    axd2.plot(np.arange(3564), (lr_det-BO_lr_det)/bint_det*3600*100, 'r', lw=2, label='Other losses (tau=%.1fh)'%lt_other)
+    axd2.plot(np.arange(3564), BO_lr_det*3600*1e-9, 'b', lw=2, alpha=.4, label='Burn-off')
+    axd2.plot(np.arange(3564), (lr_det-BO_lr_det)*3600*1e-9, 'red', lw=2, label='Other losses')
     ms.sciy()
-    axd2.set_ylabel('Loss rate [%/h]')
+    axd2.set_ylabel(r'Loss rate [10$^9$ p/h]')
     axd2.set_xlabel('25 ns slot')
     axd2.legend(loc='upper right', prop={'size':14})
     axd2.set_xlim(0,3500)
-    axd2.set_ylim(bottom=0, top=5.)
+    axd2.set_ylim(bottom=-.2, top=5.)
     axd2.grid('on')
     figd2.subplots_adjust(right=.94, left=.1, bottom=.12, top=.86)
     figd2.suptitle('Fill %d Loss Rates at %.1fh for B%d\nFT started on %s\n'%(filln, t_h_detail, beam, tref_string))
 
+if slotrange is not None:
+    axslot.set_xlim(slotrange)
 
 plt.show()
 
