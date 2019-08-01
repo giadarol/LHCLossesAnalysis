@@ -17,10 +17,10 @@ BIN = os.path.expanduser("../LHC_fullRun2_analysis_scripts/")
 sys.path.append(BIN)
 
 group_definitions = [
-    {'slots_within_injection': [1,2,3,4,5], 'n_bunches_in_injection':144},
-    {'slots_within_injection': [18, 19, 20, 21, 22], 'n_bunches_in_injection':144},
-    {'slots_within_injection': [135, 136, 137, 138, 139], 'n_bunches_in_injection':144},
-    {'slots_within_injection': [153, 154, 155, 156, 157], 'n_bunches_in_injection':144},
+    {'color':'mediumseagreen', 'slots_within_injection': [1,2,3,4,5], 'n_bunches_in_injection':144},
+    {'color':'green', 'slots_within_injection': [18, 19, 20, 21, 22], 'n_bunches_in_injection':144},
+    {'color':'indianred', 'slots_within_injection': [135, 136, 137, 138, 139], 'n_bunches_in_injection':144},
+    {'color':'darkred', 'slots_within_injection': [153, 154, 155, 156, 157], 'n_bunches_in_injection':144},
     ]
 
 # MD large telescope
@@ -29,18 +29,23 @@ T_observ_h = 5
 t_detail_h = .5
 beam = 1
 
-# Physics fill
-filln = 7145
-T_observ_h = 5
-t_detail_h = .8
-beam = 1
+# # Physics fill
+# filln = 7145
+# T_observ_h = 5
+# t_detail_h = .8
+# beam = 1
 
-# Physics fill
-filln = 7236
+# # Physics fill
+# filln = 7236
+# T_observ_h = 10
+# t_detail_h = 3
+# beam = 1
+
+# Physics fill (constant angle)
+filln = 7266
 T_observ_h = 10
 t_detail_h = 3
 beam = 1
-
 
 # # Only beam 1
 # filln = 6966
@@ -91,6 +96,14 @@ data.update(ldb.get([
             'LHC.RUNCONFIG:IP5-XING-H-MURAD'], t_start, t_stop))
 print 'Downloaded luminosity'
 
+# Get angle first and  point
+varnames = ['LHC.RUNCONFIG:IP1-XING-V-MURAD', 'LHC.RUNCONFIG:IP5-XING-H-MURAD']
+for var in varnames:
+    dpoint_start = ldb.get(var, t_start)
+    dpoint_stop = ldb.get(var, t_stop)
+    data[var] = list(data[var])
+    data[var][0] = np.concatenate(([t_start], data[var][1], [t_stop]))
+    data[var][1] = np.concatenate((dpoint_start[var][1], data[var][1], dpoint_stop[var][1]))
 
 bint_raw = data['LHC.BCTFR.A6R4.B%d:BUNCH_INTENSITY'%beam][1]
 t_stamps_raw = data['LHC.BCTFR.A6R4.B%d:BUNCH_INTENSITY'%beam][0]
@@ -158,6 +171,7 @@ tc = time_conv.from_unix
 fig = plt.figure(beam, figsize=(8*1.8,6*1.3))
 fig.set_facecolor('w')
 axlt = plt.subplot2grid(shape=(5, 5), loc=(0, 1), colspan=3, rowspan=4)
+axgr = plt.subplot2grid(shape=(5, 5), loc=(0, 4), colspan=1, rowspan=4, sharey=axlt)
 
 if mode == 'lifetime':
     cc=axlt.pcolormesh(np.arange(3564), tc(t_stamps), lifet_woBO_h, 
@@ -165,11 +179,17 @@ if mode == 'lifetime':
     axcb = plt.subplot2grid(shape=(5, 5), loc=(4, 1), colspan=3, rowspan=1)
     plt.colorbar(cc, cax=axcb, label='Lifetime (BO corrected) [h]', orientation='horizontal')
 elif mode == 'loss_rate':
-    cc=axlt.pcolormesh(np.arange(3564), tc(t_stamps), loss_rate_woBO*3600/1e9, 
+    cc=axlt.pcolormesh(np.arange(3564), tc(t_stamps[:-1]), loss_rate_woBO*3600/1e9, 
         cmap=cm.jet, vmin=0, vmax=4)
     axcb = plt.subplot2grid(shape=(5, 5), loc=(4, 1), colspan=3, rowspan=1)
     plt.colorbar(cc, cax=axcb, label='Loss rate (BO corrected) [10^9 p/h]', orientation='horizontal')
 
+for gg in group_definitions:
+    axgr.plot(np.mean(loss_rate_woBO[:, gg['mask']], axis=1)*1e-9*3600, tc(t_stamps[:-1]),
+            color=gg['color'], linewidth=2)
+axgr.grid(True)
+axgr.set_xlabel('Loss rate (BO corrected)\n[10^9 p/h]')
+axgr.set_xlim(-0.5, 5)
 
 axlt.set_xlabel('25ns slot')
 axslot = axlt
