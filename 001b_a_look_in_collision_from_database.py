@@ -23,45 +23,61 @@ group_definitions = [
     {'color':'darkred', 'slots_within_injection': [153, 154, 155, 156, 157], 'n_bunches_in_injection':144},
     ]
 
-# MD large telescope
-filln = 7174
-T_observ_h = 5
-beam = 1
-t_detail_h = .5
+# # MD large telescope
+# filln = 7174
+# T_download_h = 5
+# beam = 1
+# t_detail_h = .5
 
 # # Physics fill
 # filln = 7145
-# T_observ_h = 5
+# T_download_h = 5
 # t_detail_h = .8
 # beam = 1
 
-# # Physics fill
-# filln = 7236
-# T_observ_h = 10
-# t_detail_h = 3
-# beam = 1
+# Physics fill
+filln = 7236
+T_download_h = 10
+slotrange = np.array([0, 520])+1270
+T_h_range_colorplot = [.3, 26.5]
+t_detail_h = 0.6 # During initial losses
+t_detail_h = 3
+t_detail_h = 7
+beam = 1 
 
 # Physics fill (constant angle)
 filln = 7266
-T_observ_h = 10
-t_detail_h = 3
-beam = 1
-
-# Only beam 1
-filln = 6966
-T_observ_h = 5
-t_detail_h = 1.7 # 30 cm, 130 urad, nominal tunes
-t_detail_h = 2.7 # 25 cm, 130 urad, modified tunes
-t_detail_h = 2.55 # 25 cm, 130 urad, nominal tunes
-beam = 1
-
-# Only beam 2 
-filln = 6967
-T_observ_h = 5
-t_detail_h = 1.2 # 30 cm, 130 urad, nominal tunes
-t_detail_h = 1.3 # 25 cm ??
+T_download_h = 10
 slotrange = np.array([0, 520])+1270
-beam = 2
+T_h_range_colorplot = [.3, 9.2]
+beam = 1
+t_detail_h = .47
+
+# Physics fill
+filln = 7056
+T_download_h = 30
+slotrange = np.array([0, 520])+1270
+T_h_range_colorplot = [.3, 30]
+t_detail_h = 0.6 # During initial losses
+t_detail_h = 3
+t_detail_h = 7
+beam = 1 
+
+# # Only beam 1
+# filln = 6966
+# T_download_h = 5
+# t_detail_h = 1.7 # 30 cm, 130 urad, nominal tunes
+# t_detail_h = 2.7 # 25 cm, 130 urad, modified tunes
+# t_detail_h = 2.55 # 25 cm, 130 urad, nominal tunes
+# beam = 1
+ 
+# # Only beam 2 
+# filln = 6967
+# T_download_h = 5
+# t_detail_h = 1.2 # 30 cm, 130 urad, nominal tunes
+# t_detail_h = 1.3 # 25 cm ??
+# slotrange = np.array([0, 520])+1270
+# beam = 2
 
 dt_minutes = 5 
 
@@ -85,7 +101,7 @@ for bm in bmodes:
     if bm['mode'] == 'FLATTOP':
         t_start = bm['startTime']
 
-t_stop = t_start + T_observ_h*3600
+t_stop = t_start + T_download_h*3600
 
 tref_string=time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime(t_start))
 
@@ -133,9 +149,7 @@ for ii in range(len(bint[0, :])):
          data['ATLAS:BUNCH_LUMI_INST'][0],
          np.array(data['ATLAS:BUNCH_LUMI_INST'][1])[:, ii])
 
-
-
-bint[bint<0.5e11]=1.
+bint[bint<0.2e11]=1.
 
 slots = np.arange(len(bint[0, :]))
 
@@ -248,15 +262,15 @@ fig.subplots_adjust(right=.95, left=.05, bottom=.12, top=.81, hspace = 1)
 fig.suptitle('Fill %d SB BurnOff corrected lifetime B%d\nFT started on %s\n'%(filln, beam, tref_string))
 
 i_detail = np.argmin(np.abs(t_stamps - (t_start+t_detail_h*3600)))
-t_h_detail = tc(t_stamps)[i_detail]
+t_det_h_found = tc(t_stamps)[i_detail]
 axd = None
 axd2 = None
-if t_h_detail<tc(t_stamps)[-1]:
+if t_det_h_found<tc(t_stamps)[-1]:
 #    figd = plt.figure(100+beam, figsize=(8*1.4,6))
 #    figd.set_facecolor('w')
 #    axd = figd.add_subplot(111, sharex=axslot, sharey=axd)
 
-    i_plot = np.argmin(np.abs(t_h_detail-tc(t_stamps)))
+    i_plot = np.argmin(np.abs(t_det_h_found-tc(t_stamps)))
     BO_lr_det = BO_loss_rate[i_plot, :]
     lr_det = loss_rate[i_plot, :]
     bint_det = bint[i_plot, :]
@@ -278,10 +292,11 @@ if t_h_detail<tc(t_stamps)[-1]:
     # axd.set_ylim(bottom=0)
     # axd.grid('on')
     # figd.subplots_adjust(right=.94, left=.1, bottom=.12, top=.86)
-    # figd.suptitle('Fill %d SB Loss Rate at %.1fh for B%d\nSB started on %s\n'%(filln, t_h_detail, beam, tref_string))
+    # figd.suptitle('Fill %d SB Loss Rate at %.1fh for B%d\nSB started on %s\n'%(filln, t_det_h_found, beam, tref_string))
     
 
     figd2 = plt.figure(200+beam, figsize=(8*1.4,6))
+    figd2.clear()
     figd2.set_facecolor('w')
     axd2 = figd2.add_subplot(111, sharex=axslot, sharey=axd2)
 
@@ -295,11 +310,16 @@ if t_h_detail<tc(t_stamps)[-1]:
     axd2.set_ylim(bottom=-.2, top=5.)
     axd2.grid('on')
     figd2.subplots_adjust(right=.94, left=.1, bottom=.12, top=.86)
-    figd2.suptitle('Fill %d Loss Rates at %.1fh for B%d\nFT started on %s\n'%(filln, t_h_detail, beam, tref_string))
+    figd2.suptitle('Fill %d Loss Rates at %.1fh for B%d\nFT started on %s\n'%(filln, t_det_h_found, beam, tref_string))
 
 if slotrange is not None:
     axslot.set_xlim(slotrange)
 
+if T_h_range_colorplot is not None:
+    axgr.set_ylim(T_h_range_colorplot)
+
 plt.show()
 
-
+def savefigures(folder, beam, filln, t_det_h_found, tag=''):
+    fig.savefig(folder+'/fill%d_%s_beam%s_evol.png'%(filln, tag, beam))
+    figd2.savefig(folder+'/fill%d_%s_beam%s_detals_at_%.2fh.png'%(filln, tag, beam, t_det_h_found))
