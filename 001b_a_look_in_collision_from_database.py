@@ -26,8 +26,10 @@ group_definitions = [
 # # MD large telescope
 # filln = 7174
 # T_download_h = 5
+# slotrange = np.array([0, 520]) + 520
+# T_h_range_colorplot = [.2, 5.]
 # beam = 1
-# t_detail_h = .5
+# t_detail_h = .3 # at the beginning of the fill 
 
 # # Physics fill
 # filln = 7145
@@ -35,42 +37,52 @@ group_definitions = [
 # t_detail_h = .8
 # beam = 1
 
-# Physics fill
-filln = 7236
-T_download_h = 10
+# Physics filli (2017)
+filln = 6060
+T_download_h = 15
 slotrange = np.array([0, 520])+1270
-T_h_range_colorplot = [.3, 26.5]
-t_detail_h = 0.6 # During initial losses
-t_detail_h = 3
+T_h_range_colorplot = [.3, 14.1]
 t_detail_h = 7
 beam = 1 
 
-# Physics fill (constant angle)
-filln = 7266
-T_download_h = 10
-slotrange = np.array([0, 520])+1270
-T_h_range_colorplot = [.3, 9.2]
-beam = 1
-t_detail_h = .47
+# # Physics fill
+# filln = 7236
+# T_download_h = 10
+# slotrange = np.array([0, 520])+1270
+# T_h_range_colorplot = [.3, 26.5]
+# t_detail_h = 0.6 # During initial losses
+# t_detail_h = 3
+# t_detail_h = 7
+# beam = 1 
+# 
+# # Physics fill (constant angle)
+# filln = 7266
+# T_download_h = 10
+# slotrange = np.array([0, 520])+1270
+# T_h_range_colorplot = [.3, 9.2]
+# beam = 1
+# t_detail_h = .47
 
-# Physics fill
-filln = 7056
-T_download_h = 30
-slotrange = np.array([0, 520])+1270
-T_h_range_colorplot = [.3, 30]
-t_detail_h = 0.6 # During initial losses
-t_detail_h = 3
-t_detail_h = 7
-beam = 1 
+# # Physics fill (very long)
+# filln = 7056
+# T_download_h = 30
+# slotrange = np.array([0, 520])+1270
+# T_h_range_colorplot = [.3, 25.9]
+# t_detail_h = 0.6 # During initial losses
+# t_detail_h = 3
+# t_detail_h = 7
+# beam = 1 
 
 # # Only beam 1
 # filln = 6966
 # T_download_h = 5
+# slotrange = np.array([0, 520])+1270
+# T_h_range_colorplot = [.3, 2.77]
 # t_detail_h = 1.7 # 30 cm, 130 urad, nominal tunes
-# t_detail_h = 2.7 # 25 cm, 130 urad, modified tunes
 # t_detail_h = 2.55 # 25 cm, 130 urad, nominal tunes
+# t_detail_h = 2.7 # 25 cm, 130 urad, modified tunes
 # beam = 1
- 
+  
 # # Only beam 2 
 # filln = 6967
 # T_download_h = 5
@@ -321,5 +333,5 @@ if T_h_range_colorplot is not None:
 plt.show()
 
 def savefigures(folder, beam, filln, t_det_h_found, tag=''):
-    fig.savefig(folder+'/fill%d_%s_beam%s_evol.png'%(filln, tag, beam))
-    figd2.savefig(folder+'/fill%d_%s_beam%s_detals_at_%.2fh.png'%(filln, tag, beam, t_det_h_found))
+    fig.savefig(folder+'/fill%d_%s_beam%s_evol.png'%(filln, tag, beam, dpi=200)
+    figd2.savefig(folder+'/fill%d_%s_beam%s_detals_at_%.2fh.png'%(filln, tag, beam, t_det_h_found), dpi=200)
