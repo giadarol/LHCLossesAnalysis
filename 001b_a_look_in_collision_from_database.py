@@ -23,7 +23,8 @@ group_definitions = [
     {'color':'darkred', 'slots_within_injection': [153, 154, 155, 156, 157], 'n_bunches_in_injection':144},
     ]
 
-outp_folder = '/eos/user/g/giadarol/temp/20190801_losses_wp2/'
+# outp_folder = '/eos/user/g/giadarol/temp/20190801_losses_wp2/'
+outp_folder = None
 
 # # MD large telescope
 # filln = 7174
