@@ -16,11 +16,19 @@ plt.close('all')
 BIN = os.path.expanduser("../LHC_fullRun2_analysis_scripts/")
 sys.path.append(BIN)
 
+# For 25 ns 3x48b
 group_definitions = [
     {'color':'mediumseagreen', 'slots_within_injection': [1,2,3,4,5], 'n_bunches_in_injection':144},
     {'color':'green', 'slots_within_injection': [18, 19, 20, 21, 22], 'n_bunches_in_injection':144},
     {'color':'indianred', 'slots_within_injection': [135, 136, 137, 138, 139], 'n_bunches_in_injection':144},
     {'color':'darkred', 'slots_within_injection': [153, 154, 155, 156, 157], 'n_bunches_in_injection':144},
+    ]
+#For 8b+4e 2x96b
+group_definitions = [
+    {'color':'mediumseagreen', 'slots_within_injection': [1,2,3,4,5], 'n_bunches_in_injection':96},
+    {'color':'green', 'slots_within_injection': [36, 37, 38, 39, 40], 'n_bunches_in_injection':96},
+    {'color':'indianred', 'slots_within_injection': [112, 113, 114, 115, 116], 'n_bunches_in_injection':96},
+    {'color':'darkred', 'slots_within_injection': [136, 137, 138, 139, 140], 'n_bunches_in_injection':96},
     ]
 
 # outp_folder = '/eos/user/g/giadarol/temp/20190801_losses_wp2/'
@@ -34,13 +42,21 @@ outp_folder = None
 # beam = 1
 # t_detail_h_list = [.3, 2.] # at the beginning of the fill 
 
-# # Physics filli (2017)
+# # Physics fill (2017)
 # filln = 6060
 # T_download_h = 15
 # slotrange = np.array([0, 520])+1270
 # T_h_range_colorplot = [.3, 14.1]
 # t_detail_h_list = [0.83, 1.0, 2., 3.5, 3.58, 5.33, 7.17, 8.33, 10, 13]
 # beam = 1 
+
+# High-intensity 8b+4e 
+filln = 7366
+T_download_h = 5
+slotrange = np.array([0, 520])+1270
+T_h_range_colorplot = [.3, 2.5]
+t_detail_h_list = [.9]
+beam = 1 
 
 # # Physics fill
 # filln = 7236
@@ -66,16 +82,16 @@ outp_folder = None
 # t_detail_h_list = [0.33, 1, 2,3,4,5,6,7,7.5,8,9,9.5,10,11,12,12.5,13,14,15,16,17,18,19,20,21,22,23,24,25]
 # beam = 1 
 
-# Only beam 1
-filln = 6966
-T_download_h = 5
-slotrange = np.array([0, 520])+1270
-T_h_range_colorplot = [.3, 2.77]
-t_detail_h_list = [1.7, 2.55, 2.7]
-# t_detail_h = 1.7 # 30 cm, 130 urad, nominal tunes
-# t_detail_h = 2.55 # 25 cm, 130 urad, nominal tunes
-# t_detail_h = 2.7 # 25 cm, 130 urad, modified tunes
-beam = 1
+# # Only beam 1
+# filln = 6966
+# T_download_h = 5
+# slotrange = np.array([0, 520])+1270
+# T_h_range_colorplot = [.3, 2.77]
+# t_detail_h_list = [1.7, 2.55, 2.7]
+# # t_detail_h = 1.7 # 30 cm, 130 urad, nominal tunes
+# # t_detail_h = 2.55 # 25 cm, 130 urad, nominal tunes
+# # t_detail_h = 2.7 # 25 cm, 130 urad, modified tunes
+# beam = 1
   
 # # Only beam 2 
 # filln = 6967
