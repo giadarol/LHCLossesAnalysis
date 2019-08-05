@@ -23,13 +23,23 @@ group_definitions = [
     {'color':'indianred', 'slots_within_injection': [135, 136, 137, 138, 139], 'n_bunches_in_injection':144},
     {'color':'darkred', 'slots_within_injection': [153, 154, 155, 156, 157], 'n_bunches_in_injection':144},
     ]
-#For 8b+4e 2x96b
-group_definitions = [
-    {'color':'mediumseagreen', 'slots_within_injection': [1,2,3,4,5], 'n_bunches_in_injection':96},
-    {'color':'green', 'slots_within_injection': [36, 37, 38, 39, 40], 'n_bunches_in_injection':96},
-    {'color':'indianred', 'slots_within_injection': [112, 113, 114, 115, 116], 'n_bunches_in_injection':96},
-    {'color':'darkred', 'slots_within_injection': [136, 137, 138, 139, 140], 'n_bunches_in_injection':96},
-    ]
+
+# #For 8b+4e 2x96b
+# group_definitions = [
+#     {'color':'mediumseagreen', 'slots_within_injection': [1,2,3,4,5], 'n_bunches_in_injection':96},
+#     {'color':'green', 'slots_within_injection': [36, 37, 38, 39, 40], 'n_bunches_in_injection':96},
+#     {'color':'indianred', 'slots_within_injection': [112, 113, 114, 115, 116], 'n_bunches_in_injection':96},
+#     {'color':'darkred', 'slots_within_injection': [136, 137, 138, 139, 140], 'n_bunches_in_injection':96},
+#     ]
+
+# #For 8b+4e 4x32b
+# group_definitions = [
+#     {'color':'mediumseagreen', 'slots_within_injection': [1,2,3,4,5], 'n_bunches_in_injection':128},
+#     {'color':'green', 'slots_within_injection': [36, 37, 38, 39, 40], 'n_bunches_in_injection':128},
+#     {'color':'indianred', 'slots_within_injection': [114, 115, 116, 117, 118], 'n_bunches_in_injection':128},
+#     {'color':'darkred', 'slots_within_injection': [138, 139, 140, 141, 142], 'n_bunches_in_injection':128},
+#     ]
+
 
 # outp_folder = '/eos/user/g/giadarol/temp/20190801_losses_wp2/'
 outp_folder = None
@@ -50,13 +60,29 @@ outp_folder = None
 # t_detail_h_list = [0.83, 1.0, 2., 3.5, 3.58, 5.33, 7.17, 8.33, 10, 13]
 # beam = 1 
 
-# High-intensity 8b+4e 
-filln = 7366
-T_download_h = 5
+# # Physics fill (2017, 8b+4e)
+# filln = 6315# 6305
+# T_download_h = 14
+# slotrange = np.array([0, 520])+1270
+# T_h_range_colorplot = [.3, 14.1]
+# t_detail_h_list = [2,5,8]
+# beam = 1 
+
+# Physics fill (2017, 50 ns)
+filln = 5980 
+T_download_h = 7
 slotrange = np.array([0, 520])+1270
-T_h_range_colorplot = [.3, 2.5]
-t_detail_h_list = [.9]
+T_h_range_colorplot = [.3, 14.1]
+t_detail_h_list = [2,5,8]
 beam = 1 
+
+# # High-intensity 8b+4e 
+# filln = 7366
+# T_download_h = 5
+# slotrange = np.array([0, 520])+1270
+# T_h_range_colorplot = [.3, 2.5]
+# t_detail_h_list = [.9]
+# beam = 1 
 
 # # Physics fill
 # filln = 7236
