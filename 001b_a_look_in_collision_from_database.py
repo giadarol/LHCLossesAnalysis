@@ -259,14 +259,25 @@ elif mode == 'integrated':
     cc=axlt.pcolormesh(np.arange(3564), tc(t_stamps[:-1]), acc_loss_rate_woBO/1e10, 
         cmap=cm.jet, vmin=0, vmax=4)
     axcb = plt.subplot2grid(shape=(5, 5), loc=(4, 1), colspan=3, rowspan=1)
-    plt.colorbar(cc, cax=axcb, label='Loss rate (BO corrected) [10^10 p]', orientation='horizontal')
+    plt.colorbar(cc, cax=axcb, label='Accumulated losses (BO corrected) [10^10 p]', orientation='horizontal')
 
 for gg in group_definitions:
-    axgr.plot(np.mean(loss_rate_woBO[:, gg['mask']], axis=1)*1e-9*3600, tc(t_stamps[:-1]),
+    if mode == 'loss_rate' or mode == 'lifetime':
+        axgr.plot(np.mean(loss_rate_woBO[:, gg['mask']], axis=1)*1e-9*3600, tc(t_stamps[:-1]),
             color=gg['color'], linewidth=2)
+    elif mode == 'integrated':
+        axgr.plot(np.mean(acc_loss_rate_woBO[:, gg['mask']], axis=1)*1e-10, tc(t_stamps[:-1]),
+            color=gg['color'], linewidth=2)
+ 
+
 axgr.grid(True)
-axgr.set_xlabel('Loss rate (BO corrected)\n[10^9 p/h]')
-axgr.set_xlim(-0.5, 5)
+if mode == 'loss_rate' or mode == 'lifetime':
+    axgr.set_xlabel('Loss rate (BO corrected)\n[10^9 p/h]')
+    axgr.set_xlim(-0.5, 5)
+elif mode == 'integrated':
+    axgr.set_xlabel('Accumulated losses (BO corrected)\n[10^10 p]')
+    axgr.set_xlim(-0.5, 5)
+
 
 axlt.set_xlabel('25ns slot')
 axslot = axlt
@@ -334,6 +345,11 @@ for t_detail_h in t_detail_h_list:
         mask_filled_det = bint_det>2e10
         BO_lr_det[~mask_filled_det] = 0.
         lr_det[~mask_filled_det] = 0.
+
+        acc_loss_rate_woBO_det = acc_loss_rate_woBO[i_plot, :]
+        acc_loss_rate_woBO_det[~mask_filled_det] = 0.
+        acc_BO_loss_det = acc_BO_loss_rate[i_plot, :]
+        acc_BO_loss_det[~mask_filled_det] = 0.
     
         lt_BO_avg = 1./(np.sum(BO_lr_det)/np.sum(bint[i_plot]))/3600.
         lt_other = 1./(np.sum(lr_det-BO_lr_det)/np.sum(bint[i_plot]))/3600.
@@ -355,11 +371,19 @@ for t_detail_h in t_detail_h_list:
         figd2.clear()
         figd2.set_facecolor('w')
         axd2 = figd2.add_subplot(111, sharex=axslot, sharey=axd2)
-    
-        axd2.plot(np.arange(3564), BO_lr_det*3600*1e-9, 'b', lw=2, alpha=.4, label='Burn-off')
-        axd2.plot(np.arange(3564), (lr_det-BO_lr_det)*3600*1e-9, 'red', lw=2, label='Other losses')
-        ms.sciy()
-        axd2.set_ylabel(r'Loss rate [10$^9$ p/h]')
+         
+        if mode == 'loss_rate' or mode == 'lifetime':
+            axd2.plot(np.arange(3564), BO_lr_det*3600*1e-9, 'b', lw=2, alpha=.4, label='Burn-off')
+            axd2.plot(np.arange(3564), (lr_det-BO_lr_det)*3600*1e-9, 'red', lw=2, label='Other losses')
+            ms.sciy()
+            axd2.set_ylabel(r'Loss rate [10$^9$ p/h]')
+        elif mode == 'integrated':
+            axd2.plot(np.arange(3564), acc_BO_loss_det*1e-10, 'b', lw=2, alpha=.4, label='Burn-off')
+            axd2.plot(np.arange(3564), acc_loss_rate_woBO_det*1e-10, 'red', lw=2, label='Other losses')
+            ms.sciy()
+            axd2.set_ylabel(r'Accumulated losses [10$^{10}$ p]')
+        
+        
         axd2.set_xlabel('25 ns slot')
         axd2.legend(loc='upper right', prop={'size':14})
         axd2.set_xlim(0,3500)
