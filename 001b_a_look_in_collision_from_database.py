@@ -7,9 +7,9 @@ from matplotlib.ticker import MaxNLocator
 
 from FillingPatterns import filling_pattern as fp
 
-mode = 'loss_rate'
+mode = 'integrated'
 
-assert(mode in ['loss_rate', 'lifetime'])
+assert(mode in ['loss_rate', 'lifetime', 'integrated'])
 
 plt.close('all')
 
@@ -68,13 +68,13 @@ outp_folder = None
 # t_detail_h_list = [2,5,8]
 # beam = 1 
 
-# Physics fill (2017, 50 ns)
-filln = 5980 
-T_download_h = 7
-slotrange = np.array([0, 520])+1270
-T_h_range_colorplot = [.3, 14.1]
-t_detail_h_list = [2,5,8]
-beam = 1 
+# # Physics fill (2017, 50 ns)
+# filln = 5980 
+# T_download_h = 7
+# slotrange = np.array([0, 520])+1270
+# T_h_range_colorplot = [.3, 14.1]
+# t_detail_h_list = [2,5,8]
+# beam = 1 
 
 # # High-intensity 8b+4e 
 # filln = 7366
@@ -84,13 +84,13 @@ beam = 1
 # t_detail_h_list = [.9]
 # beam = 1 
 
-# # Physics fill
-# filln = 7236
-# T_download_h = 10
-# slotrange = np.array([0, 520])+1270
-# T_h_range_colorplot = [.3, 9.5]
-# t_detail_h_list = [0.58, 3, 4, 5, 6, 7]
-# beam = 1 
+# Physics fill
+filln = 7236
+T_download_h = 10
+slotrange = np.array([0, 520])+1270
+T_h_range_colorplot = [.3, 9.5]
+t_detail_h_list = [0.58, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9.2]
+beam = 1 
 
 # # Physics fill (constant angle)
 # filln = 7266
@@ -230,6 +230,8 @@ lifet_woBO_h = 1/(loss_rate_woBO/bint[:-1,:])/3600.
 lifet_woBO_h[lifet_woBO_h<0]= 200
 lifet_woBO_h[lifet_woBO_h>200]= 200
 
+acc_BO_loss_rate = np.cumsum(BO_loss_rate*np.diff(t_mat, axis=0), axis=0)
+acc_loss_rate_woBO = np.cumsum(loss_rate_woBO*np.diff(t_mat, axis=0), axis=0)
 
 t_ref = t_stamps[0]
 t_fbct_minutes = (t_stamps-t_ref)/60.
@@ -253,6 +255,11 @@ elif mode == 'loss_rate':
         cmap=cm.jet, vmin=0, vmax=4)
     axcb = plt.subplot2grid(shape=(5, 5), loc=(4, 1), colspan=3, rowspan=1)
     plt.colorbar(cc, cax=axcb, label='Loss rate (BO corrected) [10^9 p/h]', orientation='horizontal')
+elif mode == 'integrated':
+    cc=axlt.pcolormesh(np.arange(3564), tc(t_stamps[:-1]), acc_loss_rate_woBO/1e10, 
+        cmap=cm.jet, vmin=0, vmax=4)
+    axcb = plt.subplot2grid(shape=(5, 5), loc=(4, 1), colspan=3, rowspan=1)
+    plt.colorbar(cc, cax=axcb, label='Loss rate (BO corrected) [10^10 p]', orientation='horizontal')
 
 for gg in group_definitions:
     axgr.plot(np.mean(loss_rate_woBO[:, gg['mask']], axis=1)*1e-9*3600, tc(t_stamps[:-1]),
