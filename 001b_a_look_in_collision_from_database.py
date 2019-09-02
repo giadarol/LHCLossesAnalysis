@@ -7,7 +7,7 @@ from matplotlib.ticker import MaxNLocator
 
 from FillingPatterns import filling_pattern as fp
 
-mode = 'integrated'
+mode = 'loss_rate'
 
 assert(mode in ['loss_rate', 'lifetime', 'integrated'])
 
@@ -44,13 +44,25 @@ group_definitions = [
 # outp_folder = '/eos/user/g/giadarol/temp/20190801_losses_wp2/'
 outp_folder = None
 
+# # Test injection 
+# filln = 6610
+# T_download_h = 6
+# slotrange = np.array([0, 520]) + 520
+# T_h_range_colorplot = [0, T_download_h]
+# beam = 1
+# t_detail_h_list = [0.] # at the beginning of the fill
+# bmode_start = 'INJPHYS'
+# delay_start_h = .4
+
 # # MD large telescope
 # filln = 7174
 # T_download_h = 5
 # slotrange = np.array([0, 520]) + 520
 # T_h_range_colorplot = [.2, 5.]
 # beam = 1
-# t_detail_h_list = [.3, 2.] # at the beginning of the fill 
+# t_detail_h_list = [.3, 2.] # at the beginning of the fill
+# bmode_start = 'FLATTOP'
+# delay_start_h = 0.
 
 # # Physics fill (2017)
 # filln = 6060
@@ -59,6 +71,8 @@ outp_folder = None
 # T_h_range_colorplot = [.3, 14.1]
 # t_detail_h_list = [0.83, 1.0, 2., 3.5, 3.58, 5.33, 7.17, 8.33, 10, 13]
 # beam = 1 
+# bmode_start = 'FLATTOP'
+# delay_start_h = 0.
 
 # # Physics fill (2017, 8b+4e)
 # filln = 6315# 6305
@@ -67,6 +81,8 @@ outp_folder = None
 # T_h_range_colorplot = [.3, 14.1]
 # t_detail_h_list = [2,5,8]
 # beam = 1 
+# bmode_start = 'FLATTOP'
+# delay_start_h = 0.
 
 # # Physics fill (2017, 50 ns)
 # filln = 5980 
@@ -75,6 +91,8 @@ outp_folder = None
 # T_h_range_colorplot = [.3, 14.1]
 # t_detail_h_list = [2,5,8]
 # beam = 1 
+# bmode_start = 'FLATTOP'
+# delay_start_h = 0.
 
 # # High-intensity 8b+4e 
 # filln = 7366
@@ -83,6 +101,8 @@ outp_folder = None
 # T_h_range_colorplot = [.3, 2.5]
 # t_detail_h_list = [.9]
 # beam = 1 
+# bmode_start = 'FLATTOP'
+# delay_start_h = 0.
 
 # Physics fill
 filln = 7236
@@ -90,7 +110,10 @@ T_download_h = 10
 slotrange = np.array([0, 520])+1270
 T_h_range_colorplot = [.3, 9.5]
 t_detail_h_list = [0.58, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9.2]
+t_detail_h_list = [2]
 beam = 1 
+bmode_start = 'FLATTOP'
+delay_start_h = 0.
 
 # # Physics fill (constant angle)
 # filln = 7266
@@ -99,6 +122,8 @@ beam = 1
 # T_h_range_colorplot = [.3, 9.2]
 # beam = 1
 # t_detail_h_list = [0.5, 2, 3, 4, 5, 6, 7]
+# bmode_start = 'FLATTOP'
+# delay_start_h = 0.
 
 # # Physics fill (very long)
 # filln = 7056
@@ -107,6 +132,8 @@ beam = 1
 # T_h_range_colorplot = [.3, 25.9]
 # t_detail_h_list = [0.33, 1, 2,3,4,5,6,7,7.5,8,9,9.5,10,11,12,12.5,13,14,15,16,17,18,19,20,21,22,23,24,25]
 # beam = 1 
+# bmode_start = 'FLATTOP'
+# delay_start_h = 0.
 
 # # Only beam 1
 # filln = 6966
@@ -118,6 +145,8 @@ beam = 1
 # # t_detail_h = 2.55 # 25 cm, 130 urad, nominal tunes
 # # t_detail_h = 2.7 # 25 cm, 130 urad, modified tunes
 # beam = 1
+# bmode_start = 'FLATTOP'
+# delay_start_h = 0.
   
 # # Only beam 2 
 # filln = 6967
@@ -126,6 +155,8 @@ beam = 1
 # t_detail_h = 1.3 # 25 cm ??
 # slotrange = np.array([0, 520])+1270
 # beam = 2
+# bmode_start = 'FLATTOP'
+# delay_start_h = 0.
 
 dt_minutes = 5 
 
@@ -146,8 +177,8 @@ ldb = pytimber.LoggingDB(source='ldb')
 fillinfo = ldb.getLHCFillData(filln)
 bmodes = fillinfo['beamModes']
 for bm in bmodes:
-    if bm['mode'] == 'FLATTOP':
-        t_start = bm['startTime']
+    if bm['mode'] == bmode_start:
+        t_start = bm['startTime'] + delay_start_h * 3600.
 
 t_stop = t_start + T_download_h*3600
 
@@ -325,7 +356,7 @@ axlumi.xaxis.set_major_locator(MaxNLocator(5))
 
 fig.subplots_adjust(right=.95, left=.05, bottom=.12, top=.81, hspace = 1)
 
-fig.suptitle('Fill %d SB BurnOff corrected lifetime B%d\nFT started on %s\n'%(filln, beam, tref_string))
+fig.suptitle('Fill %d SB BurnOff corrected lifetime B%d\n%s started on %s\n'%(filln, beam, bmode_start, tref_string))
 
 for t_detail_h in t_detail_h_list:
     i_detail = np.argmin(np.abs(t_stamps - (t_start+t_detail_h*3600)))
